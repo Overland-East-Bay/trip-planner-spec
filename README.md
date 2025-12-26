@@ -23,3 +23,10 @@ By default, the backend Makefile assumes this repo lives next to it (as `../ebo-
 ```bash
 EBO_SPEC_DIR=/absolute/or/relative/path/to/ebo-planner-spec make gen-openapi
 ```
+
+## Changelog & releases
+
+- **For PRs**: update `CHANGELOG.md` under **`## [Unreleased]`** with a short note in the right section (`### Added`, `### Changed`, `### Deprecated`, `### Removed`, `### Fixed`, `### Security`).
+- **To cut a release**: run `make changelog-release VERSION=x.y.z`, commit the updated `CHANGELOG.md`, tag `vX.Y.Z`, and push the tag.
+
+More details: `docs/releasing.md`

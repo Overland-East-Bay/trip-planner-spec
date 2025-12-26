@@ -13,6 +13,8 @@ If a change affects **what the system does** or **what clients can expect**, it 
 
 This repository defines **what the system is**, not how it is implemented.
 
+**We practice spec-first development.** All requirements changes — new features, changes to behavior defined by a use case, and API contract changes (OpenAPI) — **must originate in this spec repository**.
+
 ---
 
 ## 2. Authority Model

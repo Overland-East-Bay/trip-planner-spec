@@ -15,10 +15,10 @@ Without explicit boundaries, tests become slow, flaky, and redundant. Clear laye
 
 ## Repos
 
-- `ebo-planner-spec`
-- `ebo-planner-backend`
-- `ebo-planner-cli`
-- `ebo-planner-web`
+- `trip-planner-spec`
+- `trip-planner-api`
+- `trip-planner-cli`
+- `website-edge`
 
 ## Deliverables
 

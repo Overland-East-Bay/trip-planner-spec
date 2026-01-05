@@ -10,10 +10,10 @@ Releases are where discipline collapses. Tag-driven automation keeps velocity hi
 
 ## Repos
 
-- `ebo-planner-spec`
-- `ebo-planner-backend`
-- `ebo-planner-cli`
-- `ebo-planner-web`
+- `trip-planner-spec`
+- `trip-planner-api`
+- `trip-planner-cli`
+- `website-edge`
 
 ## Deliverables
 

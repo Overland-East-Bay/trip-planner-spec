@@ -10,10 +10,10 @@ Spec-first only works if **“what we ship” == “what we implement”**. With
 
 ## Repos
 
-- `ebo-planner-spec`
-- `ebo-planner-backend`
-- `ebo-planner-cli`
-- `ebo-planner-web`
+- `trip-planner-spec`
+- `trip-planner-api`
+- `trip-planner-cli`
+- `website-edge`
 
 ## Deliverables
 

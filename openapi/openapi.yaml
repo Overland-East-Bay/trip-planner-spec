@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: "East Bay Overland \u2014 Trip Planning API (Draft)"
+  title: "Overland East Bay \u2014 Trip Planning API (Draft)"
   version: 0.1.0
   description: 'Draft OpenAPI derived from the **API Notes** sections in the v1 use case specs.
 

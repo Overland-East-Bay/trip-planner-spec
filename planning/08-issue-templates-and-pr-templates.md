@@ -10,10 +10,10 @@ Templates prevent “forgot to update changelog/spec pin/tests” mistakes. They
 
 ## Repos
 
-- `ebo-planner-spec`
-- `ebo-planner-backend`
-- `ebo-planner-cli`
-- `ebo-planner-web`
+- `trip-planner-spec`
+- `trip-planner-api`
+- `trip-planner-cli`
+- `website-edge`
 
 ## Deliverables
 

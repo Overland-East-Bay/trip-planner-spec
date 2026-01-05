@@ -35,7 +35,7 @@ Determinism guidance:
 ## Naming and publishing (v1)
 
 - Bundle file name convention:
-  - `ebo-planner-spec-bundle-vX.Y.Z.zip`
+  - `trip-planner-spec-bundle-vX.Y.Z.zip`
 - Publishing:
   - Attach bundle + manifest to the GitHub Release created from the same tag.
 

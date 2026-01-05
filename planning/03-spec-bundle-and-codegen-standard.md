@@ -10,10 +10,10 @@ In spec-first systems, “codegen chaos” is a top source of friction. A boring
 
 ## Repos
 
-- `ebo-planner-spec`
-- `ebo-planner-backend`
-- `ebo-planner-cli`
-- `ebo-planner-web`
+- `trip-planner-spec`
+- `trip-planner-api`
+- `trip-planner-cli`
+- `website-edge`
 
 ## Deliverables
 
@@ -30,7 +30,7 @@ In spec-first systems, “codegen chaos” is a top source of friction. A boring
         - SHA256 of each file
         - bundle schema/version
     - Determinism rules (avoid non-deterministic timestamps unless clearly separated)
-    - Naming: `ebo-planner-spec-bundle-vX.Y.Z.zip`
+    - Naming: `trip-planner-spec-bundle-vX.Y.Z.zip`
 - **Publishing mechanism (v1: GitHub Releases in spec repo)**
   - Spec release attaches:
     - zip bundle

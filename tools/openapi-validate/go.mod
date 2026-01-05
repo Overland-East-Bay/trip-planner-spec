@@ -1,4 +1,4 @@
-module ebo-planner-spec/tools/openapi-validate
+module github.com/Overland-East-Bay/trip-planner-spec/tools/openapi-validate
 
 go 1.22.5
 

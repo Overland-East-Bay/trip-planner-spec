@@ -1,4 +1,4 @@
-# East Bay Overland — Planner Spec
+# Overland East Bay — Planner Spec
 
 This repo is the **source of truth** for:
 
@@ -10,7 +10,7 @@ Start here: `docs/README.md`
 
 ## How this is used
 
-The backend repo (`ebo-planner-backend`) generates server glue and transport DTOs from this OpenAPI spec.
+The API repo (`trip-planner-api`) generates server glue and transport DTOs from this OpenAPI spec.
 
 From the backend repo, regenerate code with:
 
@@ -18,10 +18,10 @@ From the backend repo, regenerate code with:
 make gen-openapi
 ```
 
-By default, the backend Makefile assumes this repo lives next to it (as `../ebo-planner-spec`). If your checkout layout differs, run:
+By default, the API Makefile assumes this repo lives next to it (as `../trip-planner-spec`). If your checkout layout differs, run:
 
 ```bash
-EBO_SPEC_DIR=/absolute/or/relative/path/to/ebo-planner-spec make gen-openapi
+EBO_SPEC_DIR=/absolute/or/relative/path/to/trip-planner-spec make gen-openapi
 ```
 
 ## Changelog & releases

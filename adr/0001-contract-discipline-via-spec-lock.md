@@ -8,9 +8,9 @@ Accepted
 
 This system is spec-first and split across multiple repositories:
 
-- Contract/spec in `ebo-planner-spec`
-- Service implementation in `ebo-planner-backend`
-- Consumers in `ebo-planner-cli` and `ebo-planner-web`
+- Contract/spec in `trip-planner-spec`
+- Service implementation in `trip-planner-api`
+- Consumers in `trip-planner-cli` and `website-edge`
 
 In a multi-repo spec-first system, the most common failure mode is **contract drift**:
 

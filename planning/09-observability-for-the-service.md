@@ -10,8 +10,8 @@ When something breaks in a production-like environment, observability is the mul
 
 ## Repos
 
-- Primary: `ebo-planner-backend`
-- Planning + conventions: `ebo-planner-spec`
+- Primary: `trip-planner-api`
+- Planning + conventions: `trip-planner-spec`
 
 ## Deliverables
 

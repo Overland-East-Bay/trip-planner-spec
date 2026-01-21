@@ -1,6 +1,7 @@
-.PHONY: help ci openapi-validate changelog-verify changelog-release release-help
+.PHONY: help ci openapi-validate openapi-validate-all changelog-verify changelog-release release-help
 
 OPENAPI_SPEC ?= openapi/openapi.yaml
+OPENAPI_SPECS ?= openapi/openapi.yaml openapi/web-bff.yaml
 
 help:
 	@echo "CI / verification:"
@@ -12,10 +13,16 @@ help:
 	@echo "  make changelog-release VERSION=0.1.0"
 	@echo "Then commit, tag v0.1.0, and push the tag."
 
-ci: changelog-verify openapi-validate
+ci: changelog-verify openapi-validate-all
 
 openapi-validate:
 	@./scripts/validate_openapi.sh "$(OPENAPI_SPEC)"
+
+openapi-validate-all: ## Validate all OpenAPI specs in this repo
+	@for f in $(OPENAPI_SPECS); do \
+		echo "Validating $$f"; \
+		./scripts/validate_openapi.sh "$$f"; \
+	done
 
 changelog-verify:
 	@./scripts/verify_changelog.sh

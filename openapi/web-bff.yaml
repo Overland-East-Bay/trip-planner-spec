@@ -1,0 +1,514 @@
+openapi: 3.0.3
+info:
+  title: "Overland East Bay — Web BFF API (Draft)"
+  version: 0.1.0
+  description: >
+    Same-origin **Backend-for-Frontend (BFF)** surface for the member-facing web app.
+
+    The browser talks only to this BFF (no direct calls to Planner API or AuthGenie).
+
+    Authentication state is represented via **HttpOnly cookies**; tokens are never exposed to browser JavaScript.
+servers:
+  - url: https://overlandeastbay.com
+    description: Production (canonical)
+  - url: https://feature-preview-oauth-dev-ux.website-edge.pages.dev
+    description: Example branch preview (Pages)
+tags:
+  - name: Auth
+    description: Same-origin authentication routes (provider redirects + logout)
+  - name: Session
+    description: Session and identity endpoints
+  - name: Widgets
+    description: Static-friendly widget endpoints (member workflows)
+  - name: Pages
+    description: Page-model endpoints for SPA routes
+  - name: Members
+    description: Member profile endpoints (proxy to Planner API)
+
+paths:
+  /auth/signin:
+    get:
+      tags: [Auth]
+      summary: Sign-in chooser page
+      description: |
+        Returns a simple HTML page with provider options.
+        Accepts an optional `returnTo` value that is validated to same-origin and displayed.
+      parameters:
+        - in: query
+          name: returnTo
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: HTML sign-in page
+          content:
+            text/html:
+              schema: { type: string }
+
+  /auth/google/login:
+    get:
+      tags: [Auth]
+      summary: Start Google OAuth login
+      parameters:
+        - in: query
+          name: returnTo
+          required: false
+          schema: { type: string }
+      responses:
+        "302":
+          description: Redirect to Google OAuth authorize endpoint
+          headers:
+            Location:
+              schema: { type: string }
+            Set-Cookie:
+              schema: { type: string }
+        "400":
+          description: Bad request
+          content:
+            text/plain:
+              schema: { type: string }
+
+  /auth/google/callback:
+    get:
+      tags: [Auth]
+      summary: Google OAuth callback
+      description: |
+        Validates state/nonce, verifies the Google ID token, exchanges it with AuthGenie,
+        persists server-side session, then redirects to the validated `returnTo` path (or `/`).
+      parameters:
+        - in: query
+          name: code
+          required: false
+          schema: { type: string }
+        - in: query
+          name: state
+          required: false
+          schema: { type: string }
+        - in: query
+          name: error
+          required: false
+          schema: { type: string }
+      responses:
+        "302":
+          description: Redirect to returnTo (or `/`) on success
+          headers:
+            Location:
+              schema: { type: string }
+            Set-Cookie:
+              schema: { type: string }
+        "400":
+          description: OAuth/state/nonce error
+          content:
+            text/plain:
+              schema: { type: string }
+        "500":
+          description: Misconfiguration
+          content:
+            text/plain:
+              schema: { type: string }
+        "502":
+          description: Upstream error (provider or AuthGenie)
+          content:
+            text/plain:
+              schema: { type: string }
+
+  /auth/apple/login:
+    get:
+      tags: [Auth]
+      summary: Start Apple OAuth login
+      parameters:
+        - in: query
+          name: returnTo
+          required: false
+          schema: { type: string }
+      responses:
+        "302":
+          description: Redirect to Apple authorize endpoint
+          headers:
+            Location:
+              schema: { type: string }
+            Set-Cookie:
+              schema: { type: string }
+
+  /auth/apple/callback:
+    post:
+      tags: [Auth]
+      summary: Apple OAuth callback (form_post)
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                code: { type: string }
+                state: { type: string }
+                error: { type: string }
+                user: { type: string, description: "Optional JSON (Apple user info on first sign-in)." }
+      responses:
+        "302":
+          description: Redirect to returnTo (or `/`) on success
+          headers:
+            Location:
+              schema: { type: string }
+            Set-Cookie:
+              schema: { type: string }
+        "400":
+          description: OAuth/state/nonce error
+          content:
+            text/plain:
+              schema: { type: string }
+        "500":
+          description: Misconfiguration
+          content:
+            text/plain:
+              schema: { type: string }
+        "502":
+          description: Upstream error (provider or AuthGenie)
+          content:
+            text/plain:
+              schema: { type: string }
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Log out (clears session + cookies)
+      responses:
+        "204":
+          description: Logged out
+          headers:
+            Set-Cookie:
+              schema: { type: string }
+
+  /api/session:
+    get:
+      tags: [Session]
+      summary: Session authentication check
+      responses:
+        "200":
+          description: Session status
+          headers:
+            Cache-Control:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionStatus"
+
+  /api/me:
+    get:
+      tags: [Session]
+      summary: Auth identity for current session (AuthGenie userinfo)
+      description: |
+        Returns identity/profile claims derived from AuthGenie `GET /v1/userinfo`.
+        Does not expose tokens.
+      responses:
+        "200":
+          description: Identity info
+          headers:
+            Cache-Control:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: AuthGenie unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /api/widgets/my-rsvp:
+    get:
+      tags: [Widgets]
+      summary: Get my RSVP for a trip (widget-friendly)
+      parameters:
+        - in: query
+          name: tripId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: RSVP state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyRsvpWidgetResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: Upstream error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    put:
+      tags: [Widgets]
+      summary: Set/clear my RSVP for a trip (widget-friendly)
+      parameters:
+        - in: query
+          name: tripId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetMyRsvpRequest"
+      responses:
+        "200":
+          description: Updated RSVP state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyRsvpWidgetResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: Conflict (RSVP not allowed)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: Upstream error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /api/pages/upcoming-trips:
+    get:
+      tags: [Pages]
+      summary: Upcoming trips page model
+      responses:
+        "200":
+          description: Page model
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpcomingTripsPageModel"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: Upstream error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /api/pages/upcoming-trips/{tripId}/rsvp:
+    put:
+      tags: [Pages]
+      summary: Update RSVP for a trip (page-model)
+      parameters:
+        - in: path
+          name: tripId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetMyRsvpRequest"
+      responses:
+        "200":
+          description: Updated page model
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpcomingTripsPageModel"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: Upstream error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /api/members/me:
+    get:
+      tags: [Members]
+      summary: Current member profile (proxy to Planner API)
+      responses:
+        "200":
+          description: Member profile (Planner API response passthrough)
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: Upstream error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+components:
+  schemas:
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+
+    SessionStatus:
+      type: object
+      required: [authenticated]
+      properties:
+        authenticated:
+          type: boolean
+
+    MeResponse:
+      type: object
+      required: [authenticated, auth]
+      properties:
+        authenticated:
+          type: boolean
+          enum: [true]
+        auth:
+          $ref: "#/components/schemas/AuthIdentity"
+
+    AuthIdentity:
+      type: object
+      required: [sub]
+      properties:
+        sub:
+          type: string
+          description: AuthGenie stable subject identifier.
+        tenant_id:
+          type: string
+          nullable: true
+        idp:
+          type: string
+          nullable: true
+          enum: [google, apple]
+        email:
+          type: string
+          nullable: true
+        email_verified:
+          type: boolean
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        given_name:
+          type: string
+          nullable: true
+        family_name:
+          type: string
+          nullable: true
+        picture:
+          type: string
+          nullable: true
+        locale:
+          type: string
+          nullable: true
+
+    RSVPResponse:
+      type: string
+      enum: [YES, NO, UNSET]
+
+    SetMyRsvpRequest:
+      type: object
+      required: [response]
+      properties:
+        response:
+          $ref: "#/components/schemas/RSVPResponse"
+
+    MyRsvpWidgetResponse:
+      type: object
+      required: [tripId, myRsvp]
+      properties:
+        tripId:
+          type: string
+        myRsvp:
+          $ref: "#/components/schemas/RSVPResponse"
+
+    TripStatus:
+      type: string
+      enum: [DRAFT, PUBLISHED, CANCELED]
+
+    UpcomingTripsTrip:
+      type: object
+      required: [tripId, name, startDate, endDate, status, myRsvpResponse]
+      properties:
+        tripId:
+          type: string
+        name:
+          type: string
+          nullable: true
+        startDate:
+          type: string
+          format: date
+          nullable: true
+        endDate:
+          type: string
+          format: date
+          nullable: true
+        status:
+          $ref: "#/components/schemas/TripStatus"
+        myRsvpResponse:
+          $ref: "#/components/schemas/RSVPResponse"
+
+    UpcomingTripsPageModel:
+      type: object
+      required: [trips]
+      properties:
+        trips:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpcomingTripsTrip"
+

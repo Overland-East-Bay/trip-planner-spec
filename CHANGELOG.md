@@ -8,6 +8,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Added
 
+- Web BFF OpenAPI contract at `openapi/web-bff.yaml` defining the website-edge BFF surface (`/auth/*` + `/api/*`), including `GET /api/me`.
+
 ### Changed
 
 - Rename cross-repo references from `ebo-planner-*` to `trip-planner-*` / `website-edge`.

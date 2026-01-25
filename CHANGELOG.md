@@ -9,6 +9,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Added
 
 - Web BFF OpenAPI contract at `openapi/web-bff.yaml` defining the website-edge BFF surface (`/auth/*` + `/api/*`), including `GET /api/me`.
+- Trip Planner API: self-service member deletion endpoint `DELETE /members/me` (with explicit data handling semantics).
 
 ### Changed
 

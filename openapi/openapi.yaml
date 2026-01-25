@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: "Overland East Bay \u2014 Trip Planning API (Draft)"
-  version: 0.1.0
+  version: 0.1.1
   description: 'Draft OpenAPI derived from the **API Notes** sections in the v1 use case specs.
 
 
@@ -490,6 +490,52 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
   /members/me:
+    delete:
+      tags:
+      - Members
+      summary: Delete my member account (resolved from JWT subject)
+      description: >
+        Production self-service member deletion.
+
+        Data handling semantics (v0.1):
+        - Delete the member profile record for the authenticated subject.
+        - Delete all RSVP records created by the member.
+        - Trip records are retained.
+      operationId: deleteMyMemberAccount
+      parameters:
+      - $ref: '#/components/parameters/RequiredIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteMyMemberRequest'
+      responses:
+        '200':
+          description: Member deleted (idempotent success)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteMyMemberResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: No provisioned member exists for the authenticated subject
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                MemberNotProvisioned:
+                  summary: Member not provisioned
+                  value:
+                    error:
+                      code: MEMBER_NOT_PROVISIONED
+                      message: No member profile exists for the authenticated subject.
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
     patch:
       tags:
       - Members
@@ -1114,6 +1160,35 @@ components:
           $ref: '#/components/schemas/MemberProfile'
       required:
       - member
+    DeleteMyMemberRequest:
+      type: object
+      additionalProperties: false
+      description: Request body for self-service member deletion.
+      required:
+      - confirm
+      properties:
+        confirm:
+          type: boolean
+          description: Must be true to proceed with deletion.
+        reason:
+          type: string
+          nullable: true
+          maxLength: 256
+          description: Optional user-provided reason (best-effort; for audit/analytics).
+    DeleteMyMemberResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - deleted
+      properties:
+        deleted:
+          type: boolean
+          description: True when deletion has been applied (idempotent).
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: When deletion was applied (best-effort).
     ErrorResponse:
       type: object
       additionalProperties: false

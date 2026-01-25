@@ -9,9 +9,11 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ### Added
 
 - Web BFF OpenAPI contract at `openapi/web-bff.yaml` defining the website-edge BFF surface (`/auth/*` + `/api/*`), including `GET /api/me`.
+- Trip Planner API: self-service member deletion endpoint `DELETE /members/me` (with explicit data handling semantics).
 
 ### Changed
 
+- Web BFF `GET /api/session` response includes `hasSessionCookie` and `sessionDebugId` to support safe session correlation/debugging.
 - Rename cross-repo references from `ebo-planner-*` to `trip-planner-*` / `website-edge`.
 - Update spec bundle naming convention to `trip-planner-spec-bundle-vX.Y.Z.zip`.
 - Update the `tools/openapi-validate` Go module path to the org repo.

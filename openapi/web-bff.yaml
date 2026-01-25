@@ -406,10 +406,17 @@ components:
 
     SessionStatus:
       type: object
-      required: [authenticated]
+      required: [authenticated, hasSessionCookie]
       properties:
         authenticated:
           type: boolean
+        hasSessionCookie:
+          type: boolean
+          description: True if the request included a session cookie (regardless of whether the session is authenticated).
+        sessionDebugId:
+          type: string
+          nullable: true
+          description: Short, stable identifier derived from the session cookie value (safe to expose; not the actual cookie value).
 
     MeResponse:
       type: object
